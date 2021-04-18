@@ -216,6 +216,7 @@ type decodeState struct {
 	savedError            error
 	useNumber             bool
 	useSlice              bool
+	autoConvert           bool
 	disallowUnknownFields bool
 }
 
@@ -769,6 +770,11 @@ func (d *decodeState) object(v reflect.Value) error {
 		}
 		d.scanWhile(scanSkipSpace)
 
+		// Handle the case where a literal is quoted, when we are not looking for a string
+		if d.autoConvert && d.data[d.readIndex()] == '"' && subv.Kind() != reflect.String && subv.IsValid() {
+			destring = true
+		}
+
 		if destring {
 			switch qv := d.valueQuoted().(type) {
 			case nil:
@@ -882,6 +888,7 @@ func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool
 	if u != nil {
 		return u.UnmarshalJSON(item)
 	}
+
 	if ut != nil {
 		if item[0] != '"' {
 			if fromQuoted {
@@ -985,7 +992,7 @@ func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool
 		}
 
 	default: // number
-		if c != '-' && (c < '0' || c > '9') {
+		if c != '-' && (c < '0' || c > '9') && c != '.' {
 			if fromQuoted {
 				return fmt.Errorf("json: invalid use of ,string struct tag, trying to unmarshal %q into %v", item, v.Type())
 			}
