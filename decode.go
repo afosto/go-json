@@ -771,7 +771,7 @@ func (d *decodeState) object(v reflect.Value) error {
 		d.scanWhile(scanSkipSpace)
 
 		// Handle the case where a literal is quoted, when we are not looking for a string
-		if d.autoConvert && d.data[d.readIndex()] == '"' && subv.Kind() != reflect.String {
+		if d.autoConvert && d.data[d.readIndex()] == '"' && subv.Kind() != reflect.String && subv.IsValid() {
 			destring = true
 		}
 
