@@ -381,6 +381,12 @@ func (d *decodeState) value(v reflect.Value) error {
 		d.scanNext()
 
 	case scanBeginLiteral:
+		// Case when a literal maps into a slice
+		for d.useSlice && v.Kind() == reflect.Slice {
+			v.Set(reflect.MakeSlice(v.Type(), 1, 1))
+			v = v.Index(0)
+		}
+
 		// All bytes inside literal return scanContinue op code.
 		start := d.readIndex()
 		d.rescanLiteral()
@@ -622,7 +628,7 @@ func (d *decodeState) object(v reflect.Value) error {
 
 	// Case when an object maps into a slice
 	var haveSlice bool
-	if d.useSlice && v.Kind() == reflect.Slice {
+	for d.useSlice && v.Kind() == reflect.Slice {
 		haveSlice = true
 		v.Set(reflect.MakeSlice(v.Type(), 1, 1))
 		v = v.Index(0)
