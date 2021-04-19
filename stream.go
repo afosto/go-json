@@ -43,9 +43,9 @@ func (dec *Decoder) UseNumber() { dec.d.useNumber = true }
 // upstream it is not recommended.
 func (dec *Decoder) UseSlice() { dec.d.useSlice = true }
 
-// UseAutoConvert causes the Decoder to unmarshal a string element and convert
-// it into the specified type.  This is useful for inconsistent encodings where
-// JSON blobs alternate between having a string and another format, such as int
+// UseAutoConvert causes the Decoder to unmarshal a string literal and convert
+// it into the specified kind.  This is useful for inconsistent encodings where
+// JSON blobs alternate between with or without quoting a literal, such as int
 // or boolean.  As this can encourage bad encoding behaviors upstream it is not
 // recommended.
 func (dec *Decoder) UseAutoConvert() { dec.d.autoConvert = true }
