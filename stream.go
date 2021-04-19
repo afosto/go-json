@@ -36,12 +36,23 @@ func NewDecoder(r io.Reader) *Decoder {
 // Number instead of as a float64.
 func (dec *Decoder) UseNumber() { dec.d.useNumber = true }
 
-// UseSlice causes the Decoder to unmarshal an object into a slice
+// UseSlice causes the Decoder to unmarshal an object into a slice with an
+// object when only an object is provided in the JSON.  This is useful for
+// inconsistent encodings where JSON blobs alternate between having an array
+// and just being a single element.  As this can encourage bad encoding behaviors
+// upstream it is not recommended.
 func (dec *Decoder) UseSlice() { dec.d.useSlice = true }
 
-// DisallowUnknownFields causes the Decoder to return an error when the destination
-// is a struct and the input contains object keys which do not match any
-// non-ignored, exported fields in the destination.
+// UseAutoConvert causes the Decoder to unmarshal a string element and convert
+// it into the specified type.  This is useful for inconsistent encodings where
+// JSON blobs alternate between having a string and another format, such as int
+// or boolean.  As this can encourage bad encoding behaviors upstream it is not
+// recommended.
+func (dec *Decoder) UseAutoConvert() { dec.d.autoConvert = true }
+
+// DisallowUnknownFields causes the Decoder to return an error when the
+// destination is a struct and the input contains object keys which do not
+// match any non-ignored, exported fields in the destination.
 func (dec *Decoder) DisallowUnknownFields() { dec.d.disallowUnknownFields = true }
 
 // Decode reads the next JSON-encoded value from its
