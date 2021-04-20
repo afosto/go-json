@@ -392,6 +392,17 @@ func (d *decodeState) value(v reflect.Value) error {
 		d.rescanLiteral()
 
 		if v.IsValid() {
+			if d.autoConvert && v.Kind() != reflect.String && d.data[start] == '"' && d.data[d.readIndex()-1] == '"' {
+				// Handle the case when a string is provided, but a non-string literal is expected
+				value, ok := unquoteBytes(d.data[start:d.readIndex()])
+				if ok {
+					if err := d.literalStore(value, v, false); err != nil {
+						return err
+					}
+					return nil
+				}
+				// If the string cannot be unquoted, then fall back to a literal read
+			}
 			if err := d.literalStore(d.data[start:d.readIndex()], v, false); err != nil {
 				return err
 			}
@@ -775,11 +786,6 @@ func (d *decodeState) object(v reflect.Value) error {
 			panic(phasePanicMsg)
 		}
 		d.scanWhile(scanSkipSpace)
-
-		// Handle the case where a literal is quoted, when we are not looking for a string
-		if d.autoConvert && d.data[d.readIndex()] == '"' && subv.Kind() != reflect.String && subv.IsValid() {
-			destring = true
-		}
 
 		if destring {
 			switch qv := d.valueQuoted().(type) {
