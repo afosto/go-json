@@ -392,17 +392,6 @@ func (d *decodeState) value(v reflect.Value) error {
 		d.rescanLiteral()
 
 		if v.IsValid() {
-			if d.autoConvert && v.Kind() != reflect.String && d.data[start] == '"' && d.data[d.readIndex()-1] == '"' {
-				// Handle the case when a string is provided, but a non-string literal is expected
-				value, ok := unquoteBytes(d.data[start:d.readIndex()])
-				if ok {
-					if err := d.literalStore(value, v, false); err != nil {
-						return err
-					}
-					return nil
-				}
-				// If the string cannot be unquoted, then fall back to a literal read
-			}
 			if err := d.literalStore(d.data[start:d.readIndex()], v, false); err != nil {
 				return err
 			}
@@ -928,6 +917,17 @@ func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool
 	}
 
 	v = pv
+
+	// Handle converting strings to non-string types
+	if d.autoConvert && v.Kind() != reflect.String && item[0] == '"' && item[len(item)-1] == '"' {
+		if value, ok := unquoteBytes(item); ok {
+			item = value
+			fromQuoted = true
+		}
+		if found, err := loadCustomType(item, v); found {
+			return err
+		}
+	}
 
 	switch c := item[0]; c {
 	case 'n': // null
