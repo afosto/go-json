@@ -14,8 +14,9 @@ import (
 	"bytes"
 	"compress/gzip"
 	"fmt"
-	"internal/testenv"
+	//"internal/testenv"
 	"io"
+	"io/ioutil"
 	"os"
 	"reflect"
 	"runtime"
@@ -23,6 +24,16 @@ import (
 	"sync"
 	"testing"
 )
+
+// Discard is an Writer on which all Write calls succeed
+// without doing anything.
+var Discard io.Writer = discard{}
+
+type discard struct{}
+
+func (discard) Write(p []byte) (int, error) {
+	return len(p), nil
+}
 
 type codeResponse struct {
 	Tree     *codeNode `json:"tree"`
@@ -52,7 +63,7 @@ func codeInit() {
 	if err != nil {
 		panic(err)
 	}
-	data, err := io.ReadAll(gz)
+	data, err := ioutil.ReadAll(gz)
 	if err != nil {
 		panic(err)
 	}
@@ -89,7 +100,7 @@ func BenchmarkCodeEncoder(b *testing.B) {
 		b.StartTimer()
 	}
 	b.RunParallel(func(pb *testing.PB) {
-		enc := NewEncoder(io.Discard)
+		enc := NewEncoder(Discard) // io.Discard
 		for pb.Next() {
 			if err := enc.Encode(&codeStruct); err != nil {
 				b.Fatal("Encode:", err)
@@ -329,9 +340,10 @@ func BenchmarkUnmapped(b *testing.B) {
 func BenchmarkTypeFieldsCache(b *testing.B) {
 	b.ReportAllocs()
 	var maxTypes int = 1e6
-	if testenv.Builder() != "" {
-		maxTypes = 1e3 // restrict cache sizes on builders
-	}
+	// Uncomment for testenv
+	//if testenv.Builder() != "" {
+	//	maxTypes = 1e3 // restrict cache sizes on builders
+	//}
 
 	// Dynamically generate many new types.
 	types := make([]reflect.Type, maxTypes)
@@ -399,7 +411,7 @@ func BenchmarkEncodeMarshaler(b *testing.B) {
 	}{}
 
 	b.RunParallel(func(pb *testing.PB) {
-		enc := NewEncoder(io.Discard)
+		enc := NewEncoder(Discard) //io.Discard
 
 		for pb.Next() {
 			if err := enc.Encode(&m); err != nil {

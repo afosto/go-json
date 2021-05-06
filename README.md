@@ -22,18 +22,13 @@ In the Decoder type, one will find two additional functions:
   when specified and if one object is provided it will be a slice of one with
   that object.
 
-Secondly, one will fine a new custom type interface.  This is useful for defining your own data type
-which is encoded and decoded as a string.
+Note: the encoding has two types TextMarshaler and TextUnmarshaler which can be 
+interfaced via a custom type to implement readers and writers for non-standard
+JSON literals
 
 ```
-// This interface allows custom types to be loaded via strings in JSON.  When
-// this interface is implemented, the FromString must decode into the same type
-// specified in the struct, likewise the FromString must return a string used
-// by Marshal to create string literals.
-type CustomType interface {
-  FromString(string) (interface{}, error)
-  ToString() string
-}
+    MarshalText() (text []byte, err error)
+    UnmarshalText(text []byte) error
 ```
 
 An example of how this could be useful is encoding and decoding custom time

@@ -924,9 +924,6 @@ func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool
 			item = value
 			fromQuoted = true
 		}
-		if found, err := loadCustomType(item, v); found {
-			return err
-		}
 	}
 
 	switch c := item[0]; c {
