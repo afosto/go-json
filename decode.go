@@ -216,6 +216,7 @@ type decodeState struct {
 	savedError            error
 	useNumber             bool
 	useSlice              bool
+	ignoreEmpty           bool
 	autoConvert           bool
 	disallowUnknownFields bool
 }
@@ -372,7 +373,16 @@ func (d *decodeState) value(v reflect.Value) error {
 
 	case scanBeginObject:
 		if v.IsValid() {
-			if err := d.object(v); err != nil {
+			if d.ignoreEmpty && func() bool {
+				for i := d.off; i < len(d.data); i++ {
+					if !isSpace(d.data[i]) {
+						return d.data[i] == '}'
+					}
+				}
+				return false
+			}() {
+				d.skip()
+			} else if err := d.object(v); err != nil {
 				return err
 			}
 		} else {

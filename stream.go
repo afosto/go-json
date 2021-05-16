@@ -50,6 +50,9 @@ func (dec *Decoder) UseSlice() { dec.d.useSlice = true }
 // recommended.
 func (dec *Decoder) UseAutoConvert() { dec.d.autoConvert = true }
 
+// UseIgnoreEmpty causes the Decoder to ignore empty objects in json.
+func (dec *Decoder) IgnoreEmptyObject() { dec.d.ignoreEmpty = true }
+
 // DisallowUnknownFields causes the Decoder to return an error when the
 // destination is a struct and the input contains object keys which do not
 // match any non-ignored, exported fields in the destination.

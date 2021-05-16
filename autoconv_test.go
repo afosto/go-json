@@ -55,6 +55,17 @@ func TestUnmarshalSliceAutoConvertCustomType(t *testing.T) {
 	}
 }
 
+func TestUnmarshalIgnoreEmpty(t *testing.T) {
+	var Vals SliceVals
+	jsonDec := NewDecoder(strings.NewReader(`{"Sub":{"Dat":{  }}}`))
+	jsonDec.UseAutoConvert()
+	jsonDec.UseSlice()
+	jsonDec.IgnoreEmptyObject()
+	if err := jsonDec.Decode(&Vals); err != nil {
+		t.Fatalf("Unmarshal: %v", err)
+	}
+}
+
 type fancyVal struct {
 	dat string
 }
