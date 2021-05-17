@@ -56,7 +56,7 @@ func (dec *Decoder) UseAutoConvert() { dec.d.autoConvert = true }
 // blobs alternate between with or without quoting a literal, such as int or
 // boolean.  As this can encourage bad encoding behaviors upstream it is not
 // recommended.
-func (dec *Decoder) UseAutoConvertTrimSpace() {
+func (dec *Decoder) UseAutoConvertWithTrimSpace() {
 	dec.d.autoConvert = true
 	dec.d.autoConvertTrimSpace = true
 }
