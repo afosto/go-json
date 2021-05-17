@@ -5,6 +5,8 @@ implementing encoding and decoding of JSON as defined in RFC 7159. The mapping
 between JSON and Go values is described in the documentation for the Marshal
 and Unmarshal functions.
 
+Documentation: https://pkg.go.dev/github.com/pschou/go-json
+
 ## Differences
 
 The differences in this implementation are some additional functions and
