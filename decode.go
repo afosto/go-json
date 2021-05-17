@@ -931,7 +931,7 @@ func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool
 	// Handle converting strings to non-string types
 	if d.autoConvert && v.Kind() != reflect.String && item[0] == '"' && item[len(item)-1] == '"' {
 		if value, ok := unquoteBytes(item); ok {
-			item = value
+			item = []byte(strings.TrimSpace(string(value)))
 			fromQuoted = true
 		}
 	}
