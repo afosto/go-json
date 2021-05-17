@@ -218,6 +218,7 @@ type decodeState struct {
 	useSlice              bool
 	ignoreEmpty           bool
 	autoConvert           bool
+	autoConvertTrimSpace  bool
 	disallowUnknownFields bool
 }
 
@@ -931,7 +932,11 @@ func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool
 	// Handle converting strings to non-string types
 	if d.autoConvert && v.Kind() != reflect.String && item[0] == '"' && item[len(item)-1] == '"' {
 		if value, ok := unquoteBytes(item); ok {
-			item = []byte(strings.TrimSpace(string(value)))
+			if d.autoConvertTrimSpace {
+				item = []byte(strings.TrimSpace(string(value)))
+			} else {
+				item = value
+			}
 			fromQuoted = true
 		}
 	}

@@ -50,6 +50,17 @@ func (dec *Decoder) UseSlice() { dec.d.useSlice = true }
 // recommended.
 func (dec *Decoder) UseAutoConvert() { dec.d.autoConvert = true }
 
+// UseAutoConvertWithTrimSpace causes the Decoder to unmarshal a string literal
+// and convert it into the specified kind while trimming any leading or ending
+// spaces in the string.  This is useful for inconsistent encodings where JSON
+// blobs alternate between with or without quoting a literal, such as int or
+// boolean.  As this can encourage bad encoding behaviors upstream it is not
+// recommended.
+func (dec *Decoder) UseAutoConvertTrimSpace() {
+	dec.d.autoConvert = true
+	dec.d.autoConvertTrimSpace = true
+}
+
 // UseIgnoreEmpty causes the Decoder to ignore empty objects in json.
 func (dec *Decoder) IgnoreEmptyObject() { dec.d.ignoreEmpty = true }
 
