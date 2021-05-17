@@ -219,6 +219,7 @@ type decodeState struct {
 	ignoreEmpty           bool
 	autoConvert           bool
 	autoConvertTrimSpace  bool
+	stringTrimSpace       bool
 	disallowUnknownFields bool
 }
 
@@ -981,6 +982,12 @@ func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool
 
 	case '"': // string
 		s, ok := unquoteBytes(item)
+
+		// Trim spaces from ends of string
+		if d.stringTrimSpace {
+			s = []byte(strings.TrimSpace(string(s)))
+		}
+
 		if !ok {
 			if fromQuoted {
 				return fmt.Errorf("json: invalid use of ,string struct tag, trying to unmarshal %q into %v", item, v.Type())
