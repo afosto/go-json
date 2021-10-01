@@ -63,7 +63,10 @@ func (dec *Decoder) UseAutoConvertWithTrimSpace() {
 
 // UseAutoTrimSpace causes the Decoder to unmarshal a string literal and trim
 // any leading or ending spaces in the string.
-func (dec *Decoder) UseAutoTrimSpace() { dec.d.stringTrimSpace = true }
+func (dec *Decoder) UseAutoTrimSpace() *Decoder {
+	dec.d.stringTrimSpace = true
+	return dec
+}
 
 // UseIgnoreEmpty causes the Decoder to ignore empty objects in json.
 func (dec *Decoder) IgnoreEmptyObject() { dec.d.ignoreEmpty = true }
