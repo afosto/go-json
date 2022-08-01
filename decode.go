@@ -11,6 +11,7 @@ import (
 	"encoding"
 	"encoding/base64"
 	"fmt"
+	"github.com/microcosm-cc/bluemonday"
 	"reflect"
 	"strconv"
 	"strings"
@@ -221,6 +222,8 @@ type decodeState struct {
 	autoConvertTrimSpace  bool
 	stringTrimSpace       bool
 	disallowUnknownFields bool
+	useBlueMonday         bool
+	blueMonday            *bluemonday.Policy
 }
 
 // readIndex returns the position of the last byte read.
@@ -994,6 +997,13 @@ func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool
 			}
 			panic(phasePanicMsg)
 		}
+
+		// todo: Ignore fields that have an ignored struct tag
+
+		if d.useBlueMonday {
+			s = d.blueMonday.SanitizeBytes(s)
+		}
+
 		switch v.Kind() {
 		default:
 			d.saveError(&UnmarshalTypeError{Value: "string", Type: v.Type(), Offset: int64(d.readIndex())})

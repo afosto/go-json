@@ -7,6 +7,7 @@ package json
 import (
 	"bytes"
 	"errors"
+	"github.com/microcosm-cc/bluemonday"
 	"io"
 )
 
@@ -65,6 +66,14 @@ func (dec *Decoder) UseAutoConvertWithTrimSpace() {
 // any leading or ending spaces in the string.
 func (dec *Decoder) UseAutoTrimSpace() *Decoder {
 	dec.d.stringTrimSpace = true
+	return dec
+}
+
+// UseBlueMonday causes the Decoder to unmarshal a string literal and escape
+// any XSS using the blue monday package
+func (dec *Decoder) UseBlueMonday() *Decoder {
+	dec.d.useBlueMonday = true
+	dec.d.blueMonday = bluemonday.UGCPolicy()
 	return dec
 }
 

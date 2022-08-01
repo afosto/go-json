@@ -7,6 +7,7 @@ package json
 import (
 	"bytes"
 	"encoding"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"image"
@@ -2571,4 +2572,40 @@ func TestUnmarshalMaxDepth(t *testing.T) {
 			})
 		}
 	}
+}
+
+func TestXssIsEscaped(t *testing.T) {
+
+	inputs := map[string]string{
+		"Hello <STYLE>.XSS{background-image:url(\"javascript:alert('XSS')\");}</STYLE><A CLASS=XSS></A>World":         "Hello World",
+		"<a href=\"javascript:alert('XSS1')\" onmouseover=\"alert('XSS2')\">XSS<a>":                                   "XSS",
+		"<a href=\"http://www.google.com/\">\n  <img src=\"https://ssl.gstatic.com/accounts/ui/logo_2x.png\"/>\n</a>": "<a href=\"http://www.google.com/\" rel=\"nofollow\">\n  <img src=\"https://ssl.gstatic.com/accounts/ui/logo_2x.png\"/>\n</a>",
+		"<a onblur=\"alert(secret)\" href=\"http://www.google.com\">Google</a>":                                       "<a href=\"http://www.google.com\" rel=\"nofollow\">Google</a>",
+		"Test user": "Test user",
+	}
+
+	type formInput struct {
+		Body string `json:"body"`
+	}
+
+	for testString, result := range inputs {
+
+		dangerousInput := formInput{
+			Body: testString,
+		}
+
+		rawInput, _ := json.Marshal(dangerousInput)
+
+		reader := bytes.NewReader(rawInput)
+
+		if err := NewDecoder(reader).UseBlueMonday().Decode(&dangerousInput); err != nil {
+			t.Errorf("Cannot decode the string")
+		}
+
+		_ = result
+
+		_ = dangerousInput
+
+	}
+
 }
