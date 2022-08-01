@@ -1,0 +1,33 @@
+steps:
+  - name: golang
+    id: test
+    waitFor: [ '-' ]
+    entrypoint: /bin/bash
+    secretEnv: [ 'GO_PROXY_PASSWORD' ]
+    args:
+      - -c
+      - |
+        go env -w GONOSUMDB=github.com/afosto
+        go env -w GOPROXY="https://afosto:$$GO_PROXY_PASSWORD@go.afosto.net"
+        go env -w GOPRIVATE=""
+        go test -timeout 1m -v ./...
+  - name: golangci/golangci-lint
+    id: lint
+    waitFor: [ '-' ]
+    entrypoint: /bin/bash
+    secretEnv: [ 'GO_PROXY_PASSWORD' ]
+    args:
+      - -c
+      - |
+        go env -w GONOSUMDB=github.com/afosto
+        go env -w GOPROXY="https://afosto:$$GO_PROXY_PASSWORD@go.afosto.net"
+        go env -w GOPRIVATE=""
+        golangci-lint run
+availableSecrets:
+  secretManager:
+    - versionName: projects/afosto-internal/secrets/ATHENS_PASSWORD/versions/latest
+      env: 'GO_PROXY_PASSWORD'
+timeout: 3600s
+options:
+  pool:
+    name: 'projects/afosto-internal/locations/europe-west1/workerPools/default-pool'
