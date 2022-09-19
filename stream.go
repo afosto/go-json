@@ -77,6 +77,14 @@ func (dec *Decoder) UseBlueMonday() *Decoder {
 	return dec
 }
 
+// UseBlueMonday causes the Decoder to unmarshal a string literal and escape
+// any XSS using the blue monday package
+func (dec *Decoder) WithPolicy(policy *bluemonday.Policy) *Decoder {
+	dec.d.useBlueMonday = true
+	dec.d.blueMonday = policy
+	return dec
+}
+
 // UseIgnoreEmpty causes the Decoder to ignore empty objects in json.
 func (dec *Decoder) IgnoreEmptyObject() { dec.d.ignoreEmpty = true }
 
@@ -331,7 +339,6 @@ var _ Unmarshaler = (*RawMessage)(nil)
 //	Number, for JSON numbers
 //	string, for JSON string literals
 //	nil, for JSON null
-//
 type Token interface{}
 
 const (
