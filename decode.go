@@ -12,6 +12,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"github.com/microcosm-cc/bluemonday"
+	"html"
 	"reflect"
 	"strconv"
 	"strings"
@@ -1001,6 +1002,7 @@ func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool
 
 		if d.useBlueMonday {
 			s = d.blueMonday.SanitizeBytes(s)
+			s = []byte(html.UnescapeString(string(s)))
 		}
 
 		switch v.Kind() {
@@ -1212,6 +1214,7 @@ func (d *decodeState) literalInterface() interface{} {
 
 		if d.useBlueMonday {
 			s = d.blueMonday.Sanitize(s)
+			s = html.UnescapeString(s)
 		}
 		return s
 
